@@ -7,5 +7,14 @@
     tools:context="com.aplace.admin.aplace.main.MainActivity">
 
 
-
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:text="APLACE"
+        android:textSize="20sp"
+        android:textColor="#ff0000"/>
 </RelativeLayout>
