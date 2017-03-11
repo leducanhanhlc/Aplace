@@ -17,4 +17,5 @@
         android:text="APLACE"
         android:textSize="20sp"
         android:textColor="#ff0000"/>
+
 </RelativeLayout>
