@@ -14,14 +14,9 @@ import java.util.ArrayList;
  */
 
 public interface Mapinter {
-    public void BuildMark(EditText editText);
-    public void Checkperms();
-    public void ShowPlace(EditText editText);
-    public void AddRequest(EditText editText);
-    public void AnswerRequest(EditText editText);
     public void RunningMap();
     public Intent RequireGps();
     public boolean gpsEnable();
-    public void RunningRequest();
-    public boolean ConditionSuccess(ShopContract shopContract);
+    public void MoveCamtoUserLocation();
+    public void BuildGooglePlacesAPI();
 }

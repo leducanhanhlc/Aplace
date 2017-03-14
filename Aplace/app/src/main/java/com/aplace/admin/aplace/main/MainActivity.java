@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.aplace.admin.aplace.map.MapActi;
 import com.aplace.admin.aplace.R;
-import com.aplace.admin.aplace.model.MakeItemOperator;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
