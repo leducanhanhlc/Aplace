@@ -32,6 +32,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aplace.admin.aplace.Image.add_image;
 import com.aplace.admin.aplace.R;
 import com.aplace.admin.aplace.main.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -117,7 +118,7 @@ public class MapActi extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener  {
-
+    private int InitMoveCam = 0;
     private SupportMapFragment mapFragment;
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -135,12 +136,17 @@ public class MapActi extends AppCompatActivity implements OnMapReadyCallback,
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
+    @Override
     public void RunningMap() {
         setContentView(R.layout.map);
         ///turn on map
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_xml);
         mapFragment.getMapAsync(this);
-
+        Update();
     }
 
     @Override
@@ -174,14 +180,9 @@ public class MapActi extends AppCompatActivity implements OnMapReadyCallback,
         if(mLastLocation != null) {
             LatLng ln = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLng(ln));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
         }
-    }
-
-    @Override
-    public void BuildGooglePlacesAPI() {
-
     }
 
     @Override
@@ -250,6 +251,16 @@ public class MapActi extends AppCompatActivity implements OnMapReadyCallback,
         }
     }
 
+    @Override
+    public void Update() {
+        ImageButton add_bt = (ImageButton) findViewById(R.id.add);
+        add_bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), add_image.class));
+            }
+        });
+    }
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -264,6 +275,9 @@ public class MapActi extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        MoveCamtoUserLocation();
+        if(InitMoveCam < 2) {
+            InitMoveCam++;
+            MoveCamtoUserLocation();
+        }
     }
 }

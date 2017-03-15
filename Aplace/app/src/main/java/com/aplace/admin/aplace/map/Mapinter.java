@@ -18,5 +18,5 @@ public interface Mapinter {
     public Intent RequireGps();
     public boolean gpsEnable();
     public void MoveCamtoUserLocation();
-    public void BuildGooglePlacesAPI();
+    public void Update();
 }
