@@ -18,11 +18,5 @@
         android:textSize="20sp"
         android:textColor="#ff0000"/>
 
-    <TextView
-        android:id="@+id/testtext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="66dp" />
 
 </RelativeLayout>

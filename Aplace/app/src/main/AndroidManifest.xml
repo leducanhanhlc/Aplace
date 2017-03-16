@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Base.Theme.AppCompat.Light">
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -35,8 +35,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".map.MapActi"/>
-        <activity android:name=".Image.add_image"/>
+        <activity android:name=".map.MapFace"/>
+        <activity android:name=".Image.ImageRequest"/>
+        <activity android:name=".Search.SearchRequest"/>
 
 
     </application>

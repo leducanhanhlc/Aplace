@@ -37,8 +37,18 @@
     android:layout_below="@+id/search_click"
     android:layout_alignLeft="@+id/search_click"
     android:layout_alignStart="@+id/search_click"
-    android:layout_marginTop="10dp" />>
+    android:layout_marginTop="10dp" />
 
+    <Button
+        android:id="@+id/ok_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>
 
 
