@@ -38,6 +38,7 @@
         <activity android:name=".map.MapFace"/>
         <activity android:name=".Image.ImageRequest"/>
         <activity android:name=".Search.SearchRequest"/>
+        <activity android:name=".Image.Image_list"/>
 
 
     </application>

@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,6 +24,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.aplace.admin.aplace.Image.ImageRequest;
+import com.aplace.admin.aplace.Image.Image_list;
 import com.aplace.admin.aplace.R;
 import com.aplace.admin.aplace.Search.SearchRequest;
 import com.aplace.admin.aplace.model.Contract;
@@ -55,6 +57,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by admin on 10/03/2017.
@@ -72,7 +80,7 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
-    private Marker marker;
+    private Marker mMarker;
     private int ADD_IMAGE_TO_PLACE_CODE = 123;
     private int ADD_SEARCH_PLACE_CODE = 445;
     private int SELECT_IMAGE = 238;
@@ -85,6 +93,9 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
     private DatabaseReference mDatabase = firebaseDatabase.getReference();
     private double cLatitue;
     private double cLongtitue;
+    private ArrayList<Contract> Marker_list;
+    private Set<Contract>  Marker_choose_set;
+    private ArrayList<String> Marker_choose_list;
 
     @Override
     public void ForSearchButton() {
@@ -105,22 +116,18 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
         buildGoogleApiClient();
         RunningMap();
 
-
-
     }
 
     @Override
-    public void Update_marker_builded() {
+    public void Retrieve_marker_builded() {
         mDatabase.child("aplace").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot place : dataSnapshot.getChildren()) {
-                       Contract contract = place.getValue(Contract.class);
+                        Contract contract = place.getValue(Contract.class);
                         //LatLng latLng = new LatLng(contract.getLatitue(), contract.getLongtitue());
-                        LatLng ln = new LatLng(contract.getLatitue(), contract.getLongtitue());
-                        mMap.addMarker(new MarkerOptions().position(ln));
+                        Marker_list.add(contract);
                         //mMap.addMarker(new MarkerOptions().position(latLng));
-
                 }
             }
 
@@ -141,16 +148,42 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
         setContentView(R.layout.map);
         Ok_button = (Button) findViewById(R.id.ok_button);
         Ok_button.setVisibility(View.INVISIBLE);
+        Marker_list = new ArrayList<>();
+        Marker_choose_set = new HashSet<>();
+        Marker_choose_list = new ArrayList<>();
         ///turn on map
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_xml);
         mapFragment.getMapAsync(this);
+
+        Retrieve_marker_builded();
+
         ForSearchButton();
         ForUpdateButton();
     }
 
     @Override
     public void ForMarkClick() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Marker_choose_set.clear();
+                for(Contract contract : Marker_list) {
+                    if(contract.getLatitue() - marker.getPosition().latitude < 1e-20
+                            && contract.getLongtitue() - marker.getPosition().longitude < 1e-20) {
+                        Marker_choose_set.add(contract);
+                    }
+                }
 
+                for(Contract contract : Marker_choose_set) {
+                    Marker_choose_list.add(contract.getImage_Url());
+                }
+
+                Intent intent = new Intent(getApplicationContext(), Image_list.class);
+                intent.putStringArrayListExtra("list", Marker_choose_list);
+                startActivity(intent);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -166,6 +199,14 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
     }
 
     @Override
+    public void Show_marker_added() {
+        for(Contract contract : Marker_list) {
+            LatLng ln = new LatLng(contract.getLatitue(), contract.getLongtitue());
+            mMap.addMarker(new MarkerOptions().position(ln));
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode) {
@@ -174,8 +215,8 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
                 Ok_button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        cLatitue = marker.getPosition().latitude;
-                        cLongtitue = marker.getPosition().longitude;
+                        cLatitue = mMarker.getPosition().latitude;
+                        cLongtitue = mMarker.getPosition().longitude;
                         Choose_image();
                     }
                 });
@@ -188,15 +229,16 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
             }
             break;
             case RESULT_OK : {
-                Image_uri = data.getData();
                 Ok_button.setVisibility(View.INVISIBLE);
+                Image_uri = data.getData();
                 Add_mark_permanent();
-                marker.remove();
+                mMarker.remove();
                 Update_image_to_storage();
             }
             break;
             case 445 : {
-                Update_marker_builded();
+                ForMarkClick();
+                Show_marker_added();
             }
 
             default:return;
@@ -220,7 +262,7 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
         if (mLastLocation != null) {
             LatLng ln = new LatLng
                     (mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            marker = mMap.addMarker(new MarkerOptions().position(ln));
+            mMarker = mMap.addMarker(new MarkerOptions().position(ln));
         }
     }
 
@@ -387,12 +429,12 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
         if (mLastLocation != null) {
             LatLng ln = new LatLng
                     (mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            marker = mMap.addMarker(new MarkerOptions().position(ln));
+            mMarker = mMap.addMarker(new MarkerOptions().position(ln));
             Ok_button.setVisibility(View.VISIBLE);
             mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
                 @Override
                 public void onCameraMove() {
-                    marker.setPosition(mMap.getCameraPosition().target);//to center in map
+                    mMarker.setPosition(mMap.getCameraPosition().target);//to center in map
                     //marker.setTitle("Nhấn vào để lưu ảnh tại đây");
                 }
             });

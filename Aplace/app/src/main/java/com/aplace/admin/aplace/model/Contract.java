@@ -2,13 +2,14 @@ package com.aplace.admin.aplace.model;
 
 import android.net.Uri;
 
+import java.io.Serializable;
 import java.net.URL;
 
 /**
  * Created by admin on 16/03/2017.
  */
 
-public class Contract {
+public class Contract{
     private String image_Uri;
     private String image_Url;
     private double latitue;

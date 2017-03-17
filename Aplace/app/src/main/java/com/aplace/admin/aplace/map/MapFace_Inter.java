@@ -23,8 +23,9 @@ public interface MapFace_Inter {
     public void ForUpdateButton();
     public void Choose_image();
     public void Update_image_to_storage();
-    public void Update_marker_builded();
+    public void Retrieve_marker_builded();
     public void Update_database_to_firebase();
     public void ForSearchButton();
     public void ForMarkClick();
+    public void Show_marker_added();
 }
