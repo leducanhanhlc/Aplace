@@ -1,33 +1,48 @@
-package com.aplace.admin.aplace.map;
+package com.aplace.admin.aplace.A.map;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresPermission;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.aplace.admin.aplace.Image.ImageRequest;
-import com.aplace.admin.aplace.Image.Image_list;
+import com.aplace.admin.aplace.A.Image.ImageRequest;
+import com.aplace.admin.aplace.A.Image.Image_list;
 import com.aplace.admin.aplace.R;
-import com.aplace.admin.aplace.Search.SearchRequest;
+import com.aplace.admin.aplace.A.Search.SearchRequest;
 import com.aplace.admin.aplace.model.Contract;
+import com.facebook.Profile;
+import com.facebook.login.widget.ProfilePictureView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -38,31 +53,29 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.wallet.fragment.WalletFragmentStyle;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by admin on 10/03/2017.
@@ -96,6 +109,12 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
     private ArrayList<Contract> Marker_list;
     private Set<Contract>  Marker_choose_set;
     private ArrayList<String> Marker_choose_list;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private String User_id;
+    private String User_from;
+    private Bitmap mBitmap;
+    private ProfilePictureView profilePictureView;
 
     @Override
     public void ForSearchButton() {
@@ -120,7 +139,7 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
 
     @Override
     public void Retrieve_marker_builded() {
-        mDatabase.child("aplace").addValueEventListener(new ValueEventListener() {
+        mDatabase.child("aplace").child(User_from).child(User_id).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot place : dataSnapshot.getChildren()) {
@@ -146,8 +165,16 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     public void RunningMap() {
         setContentView(R.layout.map);
+
+        profilePictureView = (ProfilePictureView) findViewById(R.id.profile_image);
+        profilePictureView.setVisibility(View.INVISIBLE);
+
+        User_id = getIntent().getStringExtra("user_id");
+        User_from = getIntent().getStringExtra("user_from");
+
         Ok_button = (Button) findViewById(R.id.ok_button);
         Ok_button.setVisibility(View.INVISIBLE);
+
         Marker_list = new ArrayList<>();
         Marker_choose_set = new HashSet<>();
         Marker_choose_list = new ArrayList<>();
@@ -163,6 +190,7 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
 
     @Override
     public void ForMarkClick() {
+
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -200,10 +228,16 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
 
     @Override
     public void Show_marker_added() {
+        ForMarkClick();
+        BitmapDescriptor bitmapDescriptor = Profile_picture();
         for(Contract contract : Marker_list) {
             LatLng ln = new LatLng(contract.getLatitue(), contract.getLongtitue());
-            mMap.addMarker(new MarkerOptions().position(ln));
+            //LatLng ln1 = new LatLng(contract.getLatitue() + 1e-3, contract.getLongtitue() + 1e-3);
+            mMap.addMarker(new MarkerOptions().position(ln).icon(bitmapDescriptor));
+            //mMap.addMarker(new MarkerOptions().position(ln1)));
         }
+
+
     }
 
     @Override
@@ -237,9 +271,9 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
             }
             break;
             case 445 : {
-                ForMarkClick();
                 Show_marker_added();
             }
+
 
             default:return;
         }
@@ -262,13 +296,33 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
         if (mLastLocation != null) {
             LatLng ln = new LatLng
                     (mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            mMarker = mMap.addMarker(new MarkerOptions().position(ln));
+            mMarker = mMap.addMarker(new MarkerOptions()
+                    .position(ln));
         }
+    }
+
+
+    @Override
+    public BitmapDescriptor Profile_picture() {
+        profilePictureView.setEnabled(true);
+        profilePictureView.setProfileId(User_id);
+        profilePictureView.buildDrawingCache();
+        mBitmap = profilePictureView.getDrawingCache();
+        Bitmap circleBitmap = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        BitmapShader shader = new BitmapShader (mBitmap,  Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        Paint paint = new Paint();
+        paint.setShader(shader);
+        paint.setAntiAlias(true);
+        Canvas c = new Canvas(circleBitmap);
+        c.drawCircle(mBitmap.getWidth()/2, mBitmap.getHeight()/2, mBitmap.getWidth()/2, paint);
+        return BitmapDescriptorFactory.fromBitmap(circleBitmap);
+        //return profile.getProfilePictureUri(20, 20).;
+
     }
 
     @Override
     public void Update_image_to_storage() {
-        UploadTask uploadTask = mStorage.child("images/").child(Image_uri.getLastPathSegment()).putFile(Image_uri);
+        UploadTask uploadTask = mStorage.child("images/").child(User_from).child(User_id).child(Image_uri.getLastPathSegment()).putFile(Image_uri);
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -395,7 +449,7 @@ public class MapFace extends AppCompatActivity implements OnMapReadyCallback,
     @Override
     public void Update_database_to_firebase() {
         Contract contract = new Contract(cLongtitue, cLatitue, Image_uri.toString(), Image_url.toString());
-        mDatabase.child("aplace").push().setValue(contract);
+        mDatabase.child("aplace").child(User_from).child(User_id).push().setValue(contract);
     }
 
 

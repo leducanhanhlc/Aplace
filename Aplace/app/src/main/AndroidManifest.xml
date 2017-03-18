@@ -25,6 +25,7 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCSeY8oCsy6XXPq8VWAZrsRQBGSQOXop4I"/>
@@ -35,10 +36,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".map.MapFace"/>
-        <activity android:name=".Image.ImageRequest"/>
-        <activity android:name=".Search.SearchRequest"/>
-        <activity android:name=".Image.Image_list"/>
+        <activity
+            android:name="com.facebook.CustomTabActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/fb_login_protocol_scheme" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".A.map.MapFace"/>
+        <activity android:name=".A.Image.ImageRequest"/>
+        <activity android:name=".A.Search.SearchRequest"/>
+        <activity android:name=".A.Image.Image_list"/>
+        <activity android:name=".A.Sign_in.Sign_in_pre"/>
 
 
     </application>

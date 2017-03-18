@@ -28,6 +28,13 @@
     android:layout_marginRight="11dp"
     android:layout_marginEnd="11dp" />
 
+    <com.facebook.login.widget.ProfilePictureView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/profile_image"
+        android:layout_above="@+id/ok_button"
+        android:layout_centerHorizontal="true"></com.facebook.login.widget.ProfilePictureView>
+
     <ImageButton
     android:id="@+id/add"
     android:layout_width="40dp"
@@ -49,6 +56,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
 </RelativeLayout>
 
 

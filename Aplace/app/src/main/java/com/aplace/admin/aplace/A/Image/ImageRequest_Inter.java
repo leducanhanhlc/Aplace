@@ -1,4 +1,4 @@
-package com.aplace.admin.aplace.Image;
+package com.aplace.admin.aplace.A.Image;
 
 /**
  * Created by admin on 15/03/2017.

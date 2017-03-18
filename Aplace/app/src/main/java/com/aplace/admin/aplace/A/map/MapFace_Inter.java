@@ -1,13 +1,9 @@
-package com.aplace.admin.aplace.map;
+package com.aplace.admin.aplace.A.map;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.EditText;
+import android.graphics.Bitmap;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-
-import java.util.ArrayList;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 
 /**
  * Created by admin on 11/03/2017.
@@ -28,4 +24,5 @@ public interface MapFace_Inter {
     public void ForSearchButton();
     public void ForMarkClick();
     public void Show_marker_added();
+    public BitmapDescriptor Profile_picture();
 }

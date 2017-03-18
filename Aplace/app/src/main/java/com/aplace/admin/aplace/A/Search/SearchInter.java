@@ -1,4 +1,4 @@
-package com.aplace.admin.aplace.Search;
+package com.aplace.admin.aplace.A.Search;
 
 /**
  * Created by admin on 17/03/2017.
