@@ -51,6 +51,7 @@
         <activity android:name=".A.Search.SearchRequest"/>
         <activity android:name=".A.Image.Image_list"/>
         <activity android:name=".A.Sign_in.Sign_in_pre"/>
+        <activity android:name=".A.Addfriend.Addfiend"/>
 
 
     </application>

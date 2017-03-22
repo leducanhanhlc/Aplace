@@ -24,7 +24,7 @@ public class Image_list extends AppCompatActivity implements Image_list_inter{
     private ArrayList<String> Marker_choose_list;
     private ViewFlipper viewFlipper;
     private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
-    private StorageReference mStorage = firebaseStorage.getReference().child("images/");
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

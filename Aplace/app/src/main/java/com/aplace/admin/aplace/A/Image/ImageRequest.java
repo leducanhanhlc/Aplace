@@ -19,7 +19,7 @@ public class ImageRequest extends AppCompatActivity implements ImageRequest_Inte
     //private Firebase mFirebase;
 
 
-    String Image_Request_List[] = {"Chọn địa điểm", "Null"};
+    String Image_Request_List[] = {"Chọn địa điểm bạn đã đến", "Null"};
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

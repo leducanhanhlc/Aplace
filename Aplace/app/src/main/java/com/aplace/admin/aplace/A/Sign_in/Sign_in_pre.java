@@ -16,10 +16,15 @@ import android.widget.Toast;
 
 import com.aplace.admin.aplace.A.map.MapFace;
 import com.aplace.admin.aplace.R;
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -36,6 +41,8 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.json.JSONObject;
 
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -57,13 +64,14 @@ public class Sign_in_pre extends AppCompatActivity implements Sign_in_inter{
     private GoogleApiClient mGoogleApiClient;
     private int RC_SIGN_IN = 213;
     private Profile profile;
-
+    private String Facebook_id;
     @Override
     public void Facebook_login() {
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions(Arrays.asList("user_friends"));
         loginButton.setReadPermissions(Arrays.asList("email"));
         loginButton.setReadPermissions(Arrays.asList("public_profile"));
+        loginButton.setReadPermissions(Arrays.asList("user_status"));
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -71,8 +79,10 @@ public class Sign_in_pre extends AppCompatActivity implements Sign_in_inter{
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
+
+
                         Intent intent = new Intent(getApplicationContext(), MapFace.class);
-                        intent.putExtra("user_id", Facebook_id());
+                        intent.putExtra("user_id", loginResult.getAccessToken().getUserId());
                         intent.putExtra("user_from", "Facebook");
                         //intent.putExtra("profile_picture", profile.getProfilePictureUri(20, 20).toString());
                         startActivity(intent);
@@ -92,25 +102,19 @@ public class Sign_in_pre extends AppCompatActivity implements Sign_in_inter{
                 });
     }
 
-    @Override
-    public String Facebook_id() {
-        profile = Profile.getCurrentProfile();
-        return profile.getId();
-    }
-
-    @Override
+    /* @Override
     public void Google_login() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, new GoogleApiClient.OnConnectionFailedListener() {
+                .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
                     @Override
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
                     }
-                } /* OnConnectionFailedListener */)
+                })
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
@@ -142,14 +146,14 @@ public class Sign_in_pre extends AppCompatActivity implements Sign_in_inter{
     public String Google_id() {
         return null;
     }
-
+        */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_in);
         getSupportActionBar().hide();
         Facebook_login();
-        Google_login();
+        //Google_login();
 
     }
 
@@ -165,7 +169,7 @@ public class Sign_in_pre extends AppCompatActivity implements Sign_in_inter{
                 intent.putExtra("user_id", result.getSignInAccount().getId());
                 startActivity(intent);
             }
-            signOut();
+            //signOut();
         }
     }
 
